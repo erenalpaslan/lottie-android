@@ -102,7 +102,7 @@ public class L {
       synchronized (NetworkFetcher.class) {
         local = networkFetcher;
         if (local == null) {
-          networkFetcher = local = new NetworkFetcher(networkCache(context), fetcher != null ? fetcher : new DefaultLottieNetworkFetcher());
+          networkFetcher = local = new NetworkFetcher(context, networkCache(context), fetcher != null ? fetcher : new DefaultLottieNetworkFetcher());
         }
       }
     }

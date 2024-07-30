@@ -1,6 +1,7 @@
 package com.airbnb.lottie.network;
 
 
+import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -94,9 +95,19 @@ public class NetworkCache {
   File writeTempCacheFile(String url, InputStream stream, FileExtension extension) throws IOException {
     String fileName = filenameForUrl(url, extension, true);
     File file = new File(parentDir(), fileName);
+    OutputStream output = null;
+    //noinspection TryFinallyCanBeTryWithResources
     try {
-      OutputStream output = new FileOutputStream(file);
-      //noinspection TryFinallyCanBeTryWithResources
+      try {
+        output = new FileOutputStream(file);
+      }catch (Exception exception) {
+        Logger.error("Failed to create FileOutputStream", exception);
+      }
+
+      if (output == null) {
+        return null;
+      }
+
       try {
         byte[] buffer = new byte[1024];
         int read;

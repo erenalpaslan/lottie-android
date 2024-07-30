@@ -1,6 +1,7 @@
 package com.airbnb.lottie.network;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -8,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 
+import com.airbnb.lottie.L;
 import com.airbnb.lottie.LottieComposition;
 import com.airbnb.lottie.LottieCompositionFactory;
 import com.airbnb.lottie.LottieResult;
@@ -27,8 +29,15 @@ public class NetworkFetcher {
   private final NetworkCache networkCache;
   @NonNull
   private final LottieNetworkFetcher fetcher;
+  @NonNull
+  private final Context context;
 
-  public NetworkFetcher(@Nullable NetworkCache networkCache, @NonNull LottieNetworkFetcher fetcher) {
+  public NetworkFetcher(
+      @NonNull Context context,
+      @Nullable NetworkCache networkCache,
+      @NonNull LottieNetworkFetcher fetcher
+  ) {
+    this.context = context;
     this.networkCache = networkCache;
     this.fetcher = fetcher;
   }
@@ -169,10 +178,15 @@ public class NetworkFetcher {
   @NonNull
   private LottieResult<LottieComposition> fromJsonStream(@NonNull String url, @NonNull InputStream inputStream, @Nullable String cacheKey)
       throws IOException {
+    Logger.debug("fromJsonStream");
     if (cacheKey == null || networkCache == null) {
       return LottieCompositionFactory.fromJsonInputStreamSync(inputStream, null);
     }
     File file = networkCache.writeTempCacheFile(url, inputStream, FileExtension.JSON);
-    return LottieCompositionFactory.fromJsonInputStreamSync(new FileInputStream(file.getAbsolutePath()), url);
+    if (file != null) {
+      return LottieCompositionFactory.fromJsonInputStreamSync(new FileInputStream(file.getAbsolutePath()), url);
+    }else {
+      return fetchFromNetwork(context, url, cacheKey);
+    }
   }
 }
