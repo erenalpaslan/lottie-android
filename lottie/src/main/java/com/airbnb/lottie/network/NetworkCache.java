@@ -98,16 +98,16 @@ public class NetworkCache {
     OutputStream output = null;
     //noinspection TryFinallyCanBeTryWithResources
     try {
-      try {
-        output = new FileOutputStream(file);
-      }catch (Exception exception) {
-        Logger.error("Failed to create FileOutputStream", exception);
-      }
+      output = new FileOutputStream(file);
+    }catch (Exception exception) {
+      Logger.error("Failed to create FileOutputStream", exception);
+    }
 
-      if (output == null) {
-        return null;
-      }
+    if (output == null) {
+      return null;
+    }
 
+    try {
       try {
         byte[] buffer = new byte[1024];
         int read;
