@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +56,9 @@ public class ImageLayer extends BaseLayer {
     }
 
     canvas.drawBitmap(bitmap, src, dst, paint);
+    if (Utils.isPriorNougat()) {
+      bitmap.recycle();
+    }
     canvas.restore();
   }
 

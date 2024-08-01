@@ -331,4 +331,8 @@ public final class Utils {
     canvas.drawPath(path, paint);
     return bitmap;
   }
+
+  public static Boolean isPriorNougat() {
+    return Build.VERSION.SDK_INT < Build.VERSION_CODES.O;
+  }
 }

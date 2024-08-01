@@ -35,6 +35,7 @@ import com.airbnb.lottie.value.SimpleLottieValueCallback;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -139,6 +140,7 @@ import java.util.zip.ZipInputStream;
   private final Set<LottieOnCompositionLoadedListener> lottieOnCompositionLoadedListeners = new HashSet<>();
 
   @Nullable private LottieTask<LottieComposition> compositionTask;
+  @Nullable private String url = null;
 
   public LottieAnimationView(Context context) {
     super(context);
@@ -262,6 +264,9 @@ import java.util.zip.ZipInputStream;
     ta.recycle();
 
     lottieDrawable.setSystemAnimationsAreEnabled(Utils.getAnimationScale(getContext()) != 0f);
+    if (Utils.isPriorNougat()) {
+      registerAndroidNougatAnimationListener();
+    }
   }
 
   @Override public void setImageResource(int resId) {
@@ -571,6 +576,7 @@ import java.util.zip.ZipInputStream;
    * @see Lottie#initialize(LottieConfig)
    */
   public void setAnimationFromUrl(String url) {
+    this.url = url;
     LottieTask<LottieComposition> task = cacheComposition ?
         LottieCompositionFactory.fromUrl(getContext(), url) : LottieCompositionFactory.fromUrl(getContext(), url, null);
     setCompositionTask(task);
@@ -591,6 +597,7 @@ import java.util.zip.ZipInputStream;
    * @see Lottie#initialize(LottieConfig)
    */
   public void setAnimationFromUrl(String url, @Nullable String cacheKey) {
+    this.url = url;
     LottieTask<LottieComposition> task = LottieCompositionFactory.fromUrl(getContext(), url, cacheKey);
     setCompositionTask(task);
   }
@@ -1296,6 +1303,26 @@ import java.util.zip.ZipInputStream;
       // This is necessary because lottieDrawable will get unscheduled and canceled when the drawable is set to null.
       lottieDrawable.resumeAnimation();
     }
+  }
+
+  private void registerAndroidNougatAnimationListener() {
+    addAnimatorListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(@NonNull Animator animation) {
+      }
+
+      @Override public void onAnimationEnd(@NonNull Animator animation) {
+      }
+
+      @Override public void onAnimationCancel(@NonNull Animator animation) {
+      }
+
+      @Override public void onAnimationRepeat(@NonNull Animator animation) {
+        clearComposition();
+        if (url != null && !url.isEmpty()) {
+          setAnimationFromUrl(url, null);
+        }
+      }
+    });
   }
 
   private static class SavedState extends BaseSavedState {
